@@ -45,6 +45,18 @@ export async function execute(interaction) {
         ].join('\n')
       },
       {
+        name: '🎉 /sortear',
+        value: '`premio` → Sorteia um membro aleatório do servidor',
+      },
+      {
+        name: '📊 /enquete',
+        value: 'Cria uma enquete com até 4 opções',
+      },
+      {
+        name: '🏓 /ping',
+        value: 'Verifica a latência do bot',
+      },
+      {
         name: '❓ /ajuda',
         value: 'Exibe esta lista de comandos',
       }

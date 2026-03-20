@@ -17,6 +17,9 @@ import { execute as moderarExecute } from './commands/moderar.js';
 import { createExecute } from './commands/aviso.js';
 import { execute as ajudaExecute } from './commands/ajuda.js';
 import { execute as limparExecute } from './commands/limpar.js';
+import { execute as pingExecute } from './commands/ping.js';
+import { execute as sortearExecute } from './commands/sortear.js';
+import { execute as enqueteExecute } from './commands/enquete.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -113,7 +116,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
     if (interaction.commandName === 'limpar') {
       await limparExecute(interaction);
-       return;
+      return;
+    }
+    if (interaction.commandName === 'ping') {
+      await pingExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'sortear') {
+      await sortearExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'enquete') {
+      await enqueteExecute(interaction);
+      return;
     }
   }
 

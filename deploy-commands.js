@@ -5,6 +5,9 @@ import { data as moderarData } from './commands/moderar.js';
 import { data as avisoData } from './commands/aviso.js';
 import { data as ajudaData } from './commands/ajuda.js';
 import { data as limparData } from './commands/limpar.js';
+import { data as pingData } from './commands/ping.js';
+import { data as sortearData } from './commands/sortear.js';
+import { data as enqueteData } from './commands/enquete.js';
 
 dotenv.config();
 
@@ -14,6 +17,9 @@ const commands = [
   avisoData.toJSON(),
   ajudaData.toJSON(),
   limparData.toJSON(),
+  pingData.toJSON(),
+  sortearData.toJSON(),
+  enqueteData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);
