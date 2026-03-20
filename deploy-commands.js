@@ -8,6 +8,8 @@ import { data as limparData } from './commands/limpar.js';
 import { data as pingData } from './commands/ping.js';
 import { data as sortearData } from './commands/sortear.js';
 import { data as enqueteData } from './commands/enquete.js';
+import { data as slowmodeData } from './commands/slowmode.js';
+import { data as lockData } from './commands/lock.js';
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ const commands = [
   pingData.toJSON(),
   sortearData.toJSON(),
   enqueteData.toJSON(),
+  slowmodeData.toJSON(),
+  lockData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

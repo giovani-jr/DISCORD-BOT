@@ -20,6 +20,8 @@ import { execute as limparExecute } from './commands/limpar.js';
 import { execute as pingExecute } from './commands/ping.js';
 import { execute as sortearExecute } from './commands/sortear.js';
 import { execute as enqueteExecute } from './commands/enquete.js';
+import { execute as slowmodeExecute } from './commands/slowmode.js';
+import { execute as lockExecute } from './commands/lock.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -128,6 +130,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
     if (interaction.commandName === 'enquete') {
       await enqueteExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'slowmode') {
+      await slowmodeExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'lock') {
+      await lockExecute(interaction);
       return;
     }
   }

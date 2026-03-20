@@ -59,7 +59,21 @@ export async function execute(interaction) {
       {
         name: '❓ /ajuda',
         value: 'Exibe esta lista de comandos',
-      }
+      },
+      {
+        name: '🐌 /slowmode',
+        value: [
+          '`ativar` → Ativa o modo lento no canal',
+          '`desativar` → Desativa o modo lento no canal',
+        ].join('\n')
+      },
+      {
+        name: '🔒 /lock',
+        value: [
+          '`bloquear` → Bloqueia o canal para membros',
+          '`desbloquear` → Desbloqueia o canal',
+        ].join('\n')
+      },
     )
     .setFooter({ text: 'ZAPPY • Bot de gerenciamento de servidor' })
     .setTimestamp();
