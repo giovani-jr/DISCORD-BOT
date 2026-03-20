@@ -37,6 +37,14 @@ export async function execute(interaction) {
         ].join('\n')
       },
       {
+        name: '🧹 /limpar',
+        value: [
+          '`quantidade` → Apaga uma quantidade específica de mensagens',
+          '`tudo` → Apaga todas as mensagens do canal',
+          '`forcar` → Apaga todas as mensagens incluindo antigas (lento)',
+        ].join('\n')
+      },
+      {
         name: '❓ /ajuda',
         value: 'Exibe esta lista de comandos',
       }

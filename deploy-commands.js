@@ -4,6 +4,7 @@ import { data as configurarData } from './commands/configurar.js';
 import { data as moderarData } from './commands/moderar.js';
 import { data as avisoData } from './commands/aviso.js';
 import { data as ajudaData } from './commands/ajuda.js';
+import { data as limparData } from './commands/limpar.js';
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ const commands = [
   moderarData.toJSON(),
   avisoData.toJSON(),
   ajudaData.toJSON(),
+  limparData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

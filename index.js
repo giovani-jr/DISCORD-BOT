@@ -16,6 +16,7 @@ import { execute as configurarExecute } from './commands/configurar.js';
 import { execute as moderarExecute } from './commands/moderar.js';
 import { createExecute } from './commands/aviso.js';
 import { execute as ajudaExecute } from './commands/ajuda.js';
+import { execute as limparExecute } from './commands/limpar.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -109,6 +110,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.commandName === 'ajuda') {
       await ajudaExecute(interaction);
       return;
+    }
+    if (interaction.commandName === 'limpar') {
+      await limparExecute(interaction);
+       return;
     }
   }
 
