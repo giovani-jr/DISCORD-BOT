@@ -23,7 +23,7 @@ const client = new Client({
   partials: [Partials.Channel, Partials.Message, Partials.User],
 });
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   console.log(`✅ Bot iniciado como ${client.user.tag}`);
 });
 
