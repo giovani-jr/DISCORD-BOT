@@ -1,0 +1,48 @@
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+
+export const data = new SlashCommandBuilder()
+  .setName('ajuda')
+  .setDescription('Lista todos os comandos disponíveis do bot');
+
+export async function execute(interaction) {
+  const embed = new EmbedBuilder()
+    .setTitle('📋 Comandos do ZAPPY')
+    .setColor('Blue')
+    .setDescription('Aqui estão todos os comandos disponíveis:')
+    .addFields(
+      {
+        name: '⚙️ /configurar',
+        value: [
+          '`boas-vindas` → Define o canal de boas-vindas',
+          '`cargo-inicial` → Define o cargo para novos membros',
+          '`log-voz` → Define o canal de log de voz',
+          '`avisos` → Define o canal de avisos',
+          '`cargo-admin` → Define o cargo de administrador',
+          '`status` → Mostra as configurações atuais',
+        ].join('\n')
+      },
+      {
+        name: '🔨 /moderar',
+        value: [
+          '`kick` → Expulsa um membro',
+          '`ban` → Bane um membro',
+          '`mute` → Silencia um membro temporariamente',
+        ].join('\n')
+      },
+      {
+        name: '📢 /aviso',
+        value: [
+          '`enviar` → Envia um aviso para todos os membros',
+          '`agendar` → Agenda um aviso para um horário específico',
+        ].join('\n')
+      },
+      {
+        name: '❓ /ajuda',
+        value: 'Exibe esta lista de comandos',
+      }
+    )
+    .setFooter({ text: 'ZAPPY • Bot de gerenciamento de servidor' })
+    .setTimestamp();
+
+  await interaction.reply({ embeds: [embed] });
+}

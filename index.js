@@ -14,7 +14,10 @@ import axios from 'axios';
 import { getConfig } from './config/configManager.js';
 import { execute as configurarExecute } from './commands/configurar.js';
 import { execute as moderarExecute } from './commands/moderar.js';
+import { createExecute } from './commands/aviso.js';
+import { execute as ajudaExecute } from './commands/ajuda.js';
 
+// ── Inicialização do client ──
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -26,12 +29,15 @@ const client = new Client({
   partials: [Partials.Channel, Partials.Message, Partials.User],
 });
 
+// ── Bot pronto ──
 client.once("clientReady", () => {
   console.log(`✅ Bot iniciado como ${client.user.tag}`);
 });
 
+// ── Mapas de controle ──
 const voiceTimes = new Map();
 const readConfirmations = new Map();
+const avisoExecute = createExecute(readConfirmations);
 
 // ── Boas vindas ──
 client.on("guildMemberAdd", async (member) => {
@@ -83,103 +89,10 @@ client.on("guildMemberAdd", async (member) => {
   }
 });
 
-// Avisos
-async function sendNoticeDM(member, messageContent, authorTag) {
-  const avisoEmbed = new EmbedBuilder()
-    .setTitle("📢 Novo Aviso da Administração")
-    .setDescription(messageContent)
-    .setColor("Red")
-    .setFooter({ text: `Enviado por ${authorTag}` })
-    .setTimestamp();
-
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId("confirm_read")
-      .setLabel("✅ Li o aviso")
-      .setStyle(ButtonStyle.Primary),
-  );
-
-  try {
-    const dmMessage = await member.send({
-      embeds: [avisoEmbed],
-      components: [row],
-    });
-    return dmMessage.id;
-  } catch (err) {
-    console.log(`Não foi possível enviar DM para ${member.user.tag}`);
-    return null;
-  }
-}
-
-async function sendToAll(content, authorTag, messageChannel) {
-  const members = await messageChannel.guild.members.fetch();
-  let sentCount = 0;
-
-  for (const member of members.values()) {
-    if (member.user.bot) continue;
-    const messageId = await sendNoticeDM(member, content, authorTag);
-    if (messageId) {
-      sentCount++;
-      if (!readConfirmations.has(member.id))
-        readConfirmations.set(member.id, []);
-      readConfirmations.get(member.id).push(messageId);
-    }
-  }
-
-  messageChannel.reply(
-    `✅ Mensagem enviada para ${sentCount} membros com sucesso!`,
-  );
-}
-
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-
-  const config = getConfig(message.guild.id);
-  if (message.channel.id !== config.notify_channel) return;
-
-  const adminRole = message.guild.roles.cache.get(config.admin_role);
-  if (!adminRole || !message.member.roles.cache.has(adminRole.id)) return;
-
-  const args = message.content.trim().split(" ");
-
-  if (args[0].toLowerCase() === "!aviso") {
-    let avisoText;
-    let delay = 0;
-
-    if (args[1] && /^\d{1,2}:\d{2}$/.test(args[1])) {
-      const [hour, minute] = args[1].split(":").map(Number);
-      avisoText = args.slice(2).join(" ");
-
-      const now = new Date();
-      let target = new Date();
-      target.setHours(hour, minute, 0, 0);
-
-      delay = target.getTime() - now.getTime();
-      if (delay < 0) delay += 24 * 60 * 60 * 1000;
-
-      message.reply(
-        `⏳ Aviso agendado para ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
-      );
-    } else {
-      avisoText = args.slice(1).join(" ");
-    }
-
-    if (delay > 0) {
-      setTimeout(async () => {
-        try {
-          await sendToAll(avisoText, message.author.tag, message);
-        } catch (err) {
-          console.error("Erro ao enviar aviso agendado:", err);
-        }
-      }, delay);
-    } else {
-      await sendToAll(avisoText, message.author.tag, message);
-    }
-  }
-});
-
-// Interações
+// ── Interações (slash commands e botões) ──
 client.on(Events.InteractionCreate, async (interaction) => {
+
+  // Slash commands
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'configurar') {
       await configurarExecute(interaction);
@@ -189,8 +102,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await moderarExecute(interaction);
       return;
     }
+    if (interaction.commandName === 'aviso') {
+      await avisoExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'ajuda') {
+      await ajudaExecute(interaction);
+      return;
+    }
   }
 
+  // Botão de confirmação de leitura de aviso
   if (!interaction.isButton()) return;
   if (interaction.customId === "confirm_read") {
     if (!readConfirmations.has(interaction.user.id))
@@ -203,13 +125,20 @@ client.on(Events.InteractionCreate, async (interaction) => {
     });
 
     try {
-      const config = getConfig(interaction.guild.id);
-      const logChannel = interaction.guild.channels.cache.get(config.log_channel);
+  // Busca o servidor pelo cache do client
+  const guilds = interaction.client.guilds.cache;
+  for (const guild of guilds.values()) {
+    const config = getConfig(guild.id);
+    if (config.log_channel) {
+      const logChannel = guild.channels.cache.get(config.log_channel);
       if (logChannel) {
-        logChannel.send(`✅ ${interaction.user.tag} confirmou leitura do aviso.`);
+        logChannel.send(`✅ **${interaction.user.tag}** confirmou leitura do aviso.`);
+        break;
       }
-    } catch (err) {
-      console.error("Erro ao enviar log de confirmação de leitura:", err);
+    }
+  }
+} catch (err) {
+  console.error("Erro ao enviar log de confirmação de leitura:", err);
     }
 
     console.log(`${interaction.user.tag} confirmou leitura do aviso.`);
@@ -225,7 +154,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
   const member = newState.member;
   const userTag = member.user.tag;
 
-  // horário real de Brasília via API
+  // Busca horário real de Brasília via API
   const horarioBrasilia = async () => {
     try {
       const response = await axios.get('https://worldtimeapi.org/api/timezone/America/Sao_Paulo');
@@ -240,6 +169,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
   };
 
+  // Entrou na call
   if (!oldState.channel && newState.channel) {
     voiceTimes.set(member.id, {
       joinTime: Date.now(),
@@ -250,6 +180,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     );
   }
 
+  // Saiu da call
   if (oldState.channel && !newState.channel) {
     const record = voiceTimes.get(member.id);
     if (record) {
@@ -271,6 +202,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
   }
 
+  // Mudou de call
   if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
     const record = voiceTimes.get(member.id);
     const now = Date.now();
@@ -298,4 +230,5 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
   }
 });
 
+// ── Login do bot ──
 client.login(process.env.TOKEN);

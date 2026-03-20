@@ -2,12 +2,16 @@ import { REST, Routes } from 'discord.js';
 import dotenv from 'dotenv';
 import { data as configurarData } from './commands/configurar.js';
 import { data as moderarData } from './commands/moderar.js';
+import { data as avisoData } from './commands/aviso.js';
+import { data as ajudaData } from './commands/ajuda.js';
 
 dotenv.config();
 
 const commands = [
   configurarData.toJSON(),
   moderarData.toJSON(),
+  avisoData.toJSON(),
+  ajudaData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);
