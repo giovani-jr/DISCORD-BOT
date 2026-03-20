@@ -10,7 +10,10 @@ import {
 } from "discord.js";
 import dotenv from "dotenv";
 dotenv.config();
-
+import axios from 'axios';
+import { getConfig } from './config/configManager.js';
+import { execute as configurarExecute } from './commands/configurar.js';
+import { execute as moderarExecute } from './commands/moderar.js';
 
 const client = new Client({
   intents: [
@@ -27,19 +30,19 @@ client.once("clientReady", () => {
   console.log(`✅ Bot iniciado como ${client.user.tag}`);
 });
 
+const voiceTimes = new Map();
+const readConfirmations = new Map();
 
-const voiceTimes = new Map(); 
-const readConfirmations = new Map(); 
-
-
+// ── Boas vindas ──
 client.on("guildMemberAdd", async (member) => {
   const guild = member.guild;
-  const channel = guild.channels.cache.get(process.env.WELCOME_CHANNEL_ID);
+  const config = getConfig(guild.id);
 
+  const channel = guild.channels.cache.get(config.welcome_channel);
   if (channel) {
     try {
       await channel.send({
-        content: `🔥 Bem vindo, ${member} acabou de se juntar à fac !! 🔥`,
+        content: `🔥 Bem vindo, ${member} acabou de se juntar ao servidor!! 🔥`,
       });
     } catch (err) {
       console.error("Erro ao enviar mensagem pública:", err);
@@ -50,7 +53,7 @@ client.on("guildMemberAdd", async (member) => {
     const welcomeEmbed = new EmbedBuilder()
       .setTitle(`Bem-vindo(a) ao ${guild.name}!`)
       .setDescription(
-        `Olá ${member.displayName}, seja muito bem-vindo(a) à **PitsOfInferno!** 🔥🔥\n\n📜 Leia as regras com atenção para evitar punições.`,
+        `Olá ${member.displayName}, seja muito bem-vindo(a)! 🔥\n\n📜 Leia as regras com atenção para evitar punições.`,
       )
       .setColor("Red")
       .setTimestamp();
@@ -60,10 +63,11 @@ client.on("guildMemberAdd", async (member) => {
     console.error("Erro ao enviar mensagem privada:", err);
   }
 
-  let role = guild.roles.cache.get(process.env.WELCOME_ROLE_ID);
+  const config2 = getConfig(guild.id);
+  let role = guild.roles.cache.get(config2.welcome_role);
   if (!role) {
     try {
-      role = await guild.roles.fetch(process.env.WELCOME_ROLE_ID);
+      role = await guild.roles.fetch(config2.welcome_role);
     } catch (err) {
       console.error("Erro ao buscar o cargo:", err);
     }
@@ -76,12 +80,10 @@ client.on("guildMemberAdd", async (member) => {
     } catch (err) {
       console.error("Erro ao adicionar cargo:", err);
     }
-  } else {
-    console.log("Cargo de boas-vindas não encontrado");
   }
 });
 
-
+// Avisos
 async function sendNoticeDM(member, messageContent, authorTag) {
   const avisoEmbed = new EmbedBuilder()
     .setTitle("📢 Novo Aviso da Administração")
@@ -109,7 +111,6 @@ async function sendNoticeDM(member, messageContent, authorTag) {
   }
 }
 
-
 async function sendToAll(content, authorTag, messageChannel) {
   const members = await messageChannel.guild.members.fetch();
   let sentCount = 0;
@@ -130,12 +131,13 @@ async function sendToAll(content, authorTag, messageChannel) {
   );
 }
 
-
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
-  if (message.channel.id !== process.env.NOTIFY_CHANNEL_ID) return;
 
-  const adminRole = message.guild.roles.cache.get(process.env.ADMIN_ROLE_ID);
+  const config = getConfig(message.guild.id);
+  if (message.channel.id !== config.notify_channel) return;
+
+  const adminRole = message.guild.roles.cache.get(config.admin_role);
   if (!adminRole || !message.member.roles.cache.has(adminRole.id)) return;
 
   const args = message.content.trim().split(" ");
@@ -158,9 +160,6 @@ client.on("messageCreate", async (message) => {
       message.reply(
         `⏳ Aviso agendado para ${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`,
       );
-      console.log(
-        `Agendamento de aviso para ${hour}:${minute}: "${avisoText}"`,
-      );
     } else {
       avisoText = args.slice(1).join(" ");
     }
@@ -179,8 +178,19 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-
+// Interações
 client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName === 'configurar') {
+      await configurarExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'moderar') {
+      await moderarExecute(interaction);
+      return;
+    }
+  }
+
   if (!interaction.isButton()) return;
   if (interaction.customId === "confirm_read") {
     if (!readConfirmations.has(interaction.user.id))
@@ -192,19 +202,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       components: [],
     });
 
-  
     try {
-      const guild = client.guilds.cache.get(process.env.GUILD_ID);
-      if (!guild)
-        return console.log("Guild não encontrada para log de leitura");
-
-      const logChannel = guild.channels.cache.get(
-        process.env.VOICE_LOG_CHANNEL_ID,
-      );
+      const config = getConfig(interaction.guild.id);
+      const logChannel = interaction.guild.channels.cache.get(config.log_channel);
       if (logChannel) {
-        logChannel.send(
-          `✅ ${interaction.user.tag} confirmou leitura do aviso.`,
-        );
+        logChannel.send(`✅ ${interaction.user.tag} confirmou leitura do aviso.`);
       }
     } catch (err) {
       console.error("Erro ao enviar log de confirmação de leitura:", err);
@@ -214,15 +216,29 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-
+// ── Log de voz ──
 client.on("voiceStateUpdate", async (oldState, newState) => {
-  const logChannel = newState.guild.channels.cache.get(
-    process.env.VOICE_LOG_CHANNEL_ID,
-  );
+  const config = getConfig(newState.guild.id);
+  const logChannel = newState.guild.channels.cache.get(config.log_channel);
   if (!logChannel) return;
 
   const member = newState.member;
   const userTag = member.user.tag;
+
+  // horário real de Brasília via API
+  const horarioBrasilia = async () => {
+    try {
+      const response = await axios.get('https://worldtimeapi.org/api/timezone/America/Sao_Paulo');
+      const date = new Date(response.data.datetime);
+      return date.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (err) {
+      return new Date().toLocaleTimeString('pt-BR');
+    }
+  };
 
   if (!oldState.channel && newState.channel) {
     voiceTimes.set(member.id, {
@@ -230,7 +246,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
       channelName: newState.channel.name,
     });
     logChannel.send(
-      `🎧 ${userTag} entrou na call **${newState.channel.name}** às ${new Date().toLocaleTimeString()}`,
+      `🎧 ${userTag} entrou na call **${newState.channel.name}** às ${await horarioBrasilia()}`
     );
   }
 
@@ -238,26 +254,41 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     const record = voiceTimes.get(member.id);
     if (record) {
       const duration = Date.now() - record.joinTime;
-      const seconds = Math.floor(duration / 1000);
+      const segundos = Math.floor((duration / 1000) % 60);
+      const minutos = Math.floor((duration / (1000 * 60)) % 60);
+      const horas = Math.floor(duration / (1000 * 60 * 60));
+
+      const duracaoFormatada = horas > 0
+        ? `${horas}h ${minutos}m ${segundos}s`
+        : minutos > 0
+          ? `${minutos}m ${segundos}s`
+          : `${segundos}s`;
+
       logChannel.send(
-        `❌ ${userTag} saiu da call **${oldState.channel.name}**. Tempo de voz: ${seconds} segundos`,
+        `❌ ${userTag} saiu da call **${oldState.channel.name}** às ${await horarioBrasilia()}. Tempo de voz: ${duracaoFormatada}`
       );
       voiceTimes.delete(member.id);
     }
   }
 
-  if (
-    oldState.channel &&
-    newState.channel &&
-    oldState.channel.id !== newState.channel.id
-  ) {
+  if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
     const record = voiceTimes.get(member.id);
     const now = Date.now();
     let duration = 0;
     if (record) duration = now - record.joinTime;
 
+    const segundos = Math.floor((duration / 1000) % 60);
+    const minutos = Math.floor((duration / (1000 * 60)) % 60);
+    const horas = Math.floor(duration / (1000 * 60 * 60));
+
+    const duracaoFormatada = horas > 0
+      ? `${horas}h ${minutos}m ${segundos}s`
+      : minutos > 0
+        ? `${minutos}m ${segundos}s`
+        : `${segundos}s`;
+
     logChannel.send(
-      `🔄 ${userTag} mudou da call **${oldState.channel.name}** para **${newState.channel.name}**. Tempo na call anterior: ${Math.floor(duration / 1000)} segundos`,
+      `🔄 ${userTag} mudou da call **${oldState.channel.name}** para **${newState.channel.name}** às ${await horarioBrasilia()}. Tempo na call anterior: ${duracaoFormatada}`
     );
 
     voiceTimes.set(member.id, {
@@ -266,6 +297,5 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     });
   }
 });
-
 
 client.login(process.env.TOKEN);

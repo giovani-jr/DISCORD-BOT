@@ -13,8 +13,11 @@
   "dependencies": {
     "@discordjs/rest": "^2.6.0",
     "@types/node": "^22.13.11",
+    "axios": "^1.13.6",
     "discord-api-types": "^0.38.26",
     "discord.js": "^14.22.1",
-    "dotenv": "^17.2.2"
+    "dotenv": "^17.2.2",
+    "fs-extra": "^11.3.4",
+    "luxon": "^3.7.2"
   }
 }
