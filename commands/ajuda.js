@@ -11,69 +11,61 @@ export async function execute(interaction) {
     .setDescription('Aqui estão todos os comandos disponíveis:')
     .addFields(
       {
-        name: '⚙️ /configurar',
+        name: '⚙️ Configuração',
         value: [
-          '`boas-vindas` → Define o canal de boas-vindas',
-          '`cargo-inicial` → Define o cargo para novos membros',
-          '`log-voz` → Define o canal de log de voz',
-          '`avisos` → Define o canal de avisos',
-          '`cargo-admin` → Define o cargo de administrador',
-          '`status` → Mostra as configurações atuais',
+          '`/configurar boas-vindas` → Define o canal de boas-vindas',
+          '`/configurar cargo-inicial` → Define o cargo para novos membros',
+          '`/configurar log-voz` → Define o canal de log de voz',
+          '`/configurar avisos` → Define o canal de avisos',
+          '`/configurar cargo-admin` → Define o cargo de administrador',
+          '`/configurar status` → Mostra as configurações atuais',
         ].join('\n')
       },
       {
-        name: '🔨 /moderar',
+        name: '🔨 Moderação',
         value: [
-          '`kick` → Expulsa um membro',
-          '`ban` → Bane um membro',
-          '`mute` → Silencia um membro temporariamente',
+          '`/moderar kick` → Expulsa um membro',
+          '`/moderar ban` → Bane um membro',
+          '`/moderar mute` → Silencia um membro temporariamente',
+          '`/limpar quantidade` → Apaga quantidade específica de mensagens',
+          '`/limpar tudo` → Apaga todas as mensagens (máx 14 dias)',
+          '`/limpar forcar` → Apaga todas as mensagens incluindo antigas',
+          '`/slowmode ativar` → Ativa o modo lento no canal',
+          '`/slowmode desativar` → Desativa o modo lento no canal',
+          '`/lock bloquear` → Bloqueia o canal para membros',
+          '`/lock desbloquear` → Desbloqueia o canal',
         ].join('\n')
       },
       {
-        name: '📢 /aviso',
+        name: '📢 Avisos',
         value: [
-          '`enviar` → Envia um aviso para todos os membros',
-          '`agendar` → Agenda um aviso para um horário específico',
+          '`/aviso enviar` → Envia um aviso para todos os membros',
+          '`/aviso agendar` → Agenda um aviso para um horário específico',
         ].join('\n')
       },
       {
-        name: '🧹 /limpar',
+        name: '🎉 Diversão',
         value: [
-          '`quantidade` → Apaga uma quantidade específica de mensagens',
-          '`tudo` → Apaga todas as mensagens do canal',
-          '`forcar` → Apaga todas as mensagens incluindo antigas (lento)',
+          '`/coinflip` → Lança uma moeda',
+          '`/dado` → Rola um dado personalizado (ex: 1d6, 2d20)',
+          '`/8ball` → Bola mágica responde perguntas',
+          '`/sortear` → Cria um sorteio com tempo definido e reações',
+          '`/enquete` → Cria uma enquete com até 4 opções',
         ].join('\n')
       },
       {
-        name: '🎉 /sortear',
-        value: '`premio` → Sorteia um membro aleatório do servidor',
-      },
-      {
-        name: '📊 /enquete',
-        value: 'Cria uma enquete com até 4 opções',
-      },
-      {
-        name: '🏓 /ping',
-        value: 'Verifica a latência do bot',
-      },
-      {
-        name: '❓ /ajuda',
-        value: 'Exibe esta lista de comandos',
-      },
-      {
-        name: '🐌 /slowmode',
+        name: '👤 Informações',
         value: [
-          '`ativar` → Ativa o modo lento no canal',
-          '`desativar` → Desativa o modo lento no canal',
+          '`/userinfo` → Informações detalhadas de um usuário',
+          '`/serverinfo` → Informações do servidor',
+          '`/avatar` → Exibe o avatar de um membro',
+          '`/ping` → Verifica a latência do bot',
         ].join('\n')
       },
       {
-        name: '🔒 /lock',
-        value: [
-          '`bloquear` → Bloqueia o canal para membros',
-          '`desbloquear` → Desbloqueia o canal',
-        ].join('\n')
-      },
+        name: '❓ Ajuda',
+        value: '`/ajuda` → Exibe esta lista de comandos',
+      }
     )
     .setFooter({ text: 'ZAPPY • Bot de gerenciamento de servidor' })
     .setTimestamp();

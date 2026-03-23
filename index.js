@@ -22,6 +22,12 @@ import { execute as sortearExecute } from './commands/sortear.js';
 import { execute as enqueteExecute } from './commands/enquete.js';
 import { execute as slowmodeExecute } from './commands/slowmode.js';
 import { execute as lockExecute } from './commands/lock.js';
+import { execute as coinflipExecute } from './commands/coinflip.js';
+import { execute as dadoExecute } from './commands/dado.js';
+import { execute as eightballExecute } from './commands/8ball.js';
+import { execute as userinfoExecute } from './commands/userinfo.js';
+import { execute as serverinfoExecute } from './commands/serverinfo.js';
+import { execute as avatarExecute } from './commands/avatar.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -138,6 +144,30 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
     if (interaction.commandName === 'lock') {
       await lockExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'coinflip') {
+      await coinflipExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'dado') {
+      await dadoExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === '8ball') {
+      await eightballExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'userinfo') {
+      await userinfoExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'serverinfo') {
+       await serverinfoExecute(interaction);
+       return;
+    }
+    if (interaction.commandName === 'avatar') {
+      await avatarExecute(interaction);
       return;
     }
   }
