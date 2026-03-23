@@ -28,7 +28,7 @@ import { execute as eightballExecute } from './commands/8ball.js';
 import { execute as userinfoExecute } from './commands/userinfo.js';
 import { execute as serverinfoExecute } from './commands/serverinfo.js';
 import { execute as avatarExecute } from './commands/avatar.js';
-import { execute as iaExecute } from './commands/ia.js';
+import { execute as iaExecute, handleIAMessage, historicoChats } from './commands/ia.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -102,6 +102,14 @@ client.on("guildMemberAdd", async (member) => {
   }
 });
 
+// ── Mensagens (chat de IA) ──
+client.on("messageCreate", async (message) => {
+  if (message.author.bot) return;
+
+  // Verifica se é um canal de IA
+  await handleIAMessage(message, historicoChats);
+});
+
 // ── Interações (slash commands e botões) ──
 client.on(Events.InteractionCreate, async (interaction) => {
 
@@ -164,8 +172,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
     if (interaction.commandName === 'serverinfo') {
-       await serverinfoExecute(interaction);
-       return;
+      await serverinfoExecute(interaction);
+      return;
     }
     if (interaction.commandName === 'avatar') {
       await avatarExecute(interaction);
@@ -190,20 +198,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
     });
 
     try {
-  // Busca o servidor pelo cache do client
-  const guilds = interaction.client.guilds.cache;
-  for (const guild of guilds.values()) {
-    const config = getConfig(guild.id);
-    if (config.log_channel) {
-      const logChannel = guild.channels.cache.get(config.log_channel);
-      if (logChannel) {
-        logChannel.send(`✅ **${interaction.user.tag}** confirmou leitura do aviso.`);
-        break;
+      const guilds = interaction.client.guilds.cache;
+      for (const guild of guilds.values()) {
+        const config = getConfig(guild.id);
+        if (config.log_channel) {
+          const logChannel = guild.channels.cache.get(config.log_channel);
+          if (logChannel) {
+            logChannel.send(`✅ **${interaction.user.tag}** confirmou leitura do aviso.`);
+            break;
+          }
+        }
       }
-    }
-  }
-} catch (err) {
-  console.error("Erro ao enviar log de confirmação de leitura:", err);
+    } catch (err) {
+      console.error("Erro ao enviar log de confirmação de leitura:", err);
     }
 
     console.log(`${interaction.user.tag} confirmou leitura do aviso.`);
