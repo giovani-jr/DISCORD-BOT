@@ -63,13 +63,13 @@ export async function execute(interaction) {
         ].join('\n')
       },
       {
-        name: '🤖 Inteligência Artificial',
-        value: '`/ia` → Faça uma pergunta para a IA (Powered by Google Gemini)',
+        name: '🤖 Inteligencia Artificial',
+        value: [
+          '`/ia perguntar` → Faz uma pergunta rapida para a IA',
+          '`/ia iniciar` → Cria um chat privado com a IA',
+          '`/ia encerrar` → Encerra o chat privado com a IA',
+        ].join('\n')
       },
-      {
-        name: '❓ Ajuda',
-        value: '`/ajuda` → Exibe esta lista de comandos',
-      }
     )
     .setFooter({ text: 'ZAPPY • Bot de gerenciamento de servidor' })
     .setTimestamp();
