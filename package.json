@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^2.6.0",
+    "@google/generative-ai": "^0.24.1",
     "@types/node": "^22.13.11",
     "axios": "^1.13.6",
     "discord-api-types": "^0.38.26",

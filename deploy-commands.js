@@ -16,6 +16,7 @@ import { data as eightballData } from './commands/8ball.js';
 import { data as userinfoData } from './commands/userinfo.js';
 import { data as serverinfoData } from './commands/serverinfo.js';
 import { data as avatarData } from './commands/avatar.js';
+import { data as iaData } from './commands/ia.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ const commands = [
   userinfoData.toJSON(),
   serverinfoData.toJSON(),
   avatarData.toJSON(),
+  iaData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

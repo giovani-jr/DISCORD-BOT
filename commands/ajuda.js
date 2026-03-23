@@ -63,6 +63,10 @@ export async function execute(interaction) {
         ].join('\n')
       },
       {
+        name: '🤖 Inteligência Artificial',
+        value: '`/ia` → Faça uma pergunta para a IA (Powered by Google Gemini)',
+      },
+      {
         name: '❓ Ajuda',
         value: '`/ajuda` → Exibe esta lista de comandos',
       }

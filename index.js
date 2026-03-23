@@ -28,6 +28,7 @@ import { execute as eightballExecute } from './commands/8ball.js';
 import { execute as userinfoExecute } from './commands/userinfo.js';
 import { execute as serverinfoExecute } from './commands/serverinfo.js';
 import { execute as avatarExecute } from './commands/avatar.js';
+import { execute as iaExecute } from './commands/ia.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -168,6 +169,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
     if (interaction.commandName === 'avatar') {
       await avatarExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'ia') {
+      await iaExecute(interaction);
       return;
     }
   }
