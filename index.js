@@ -29,6 +29,8 @@ import { execute as userinfoExecute } from './commands/userinfo.js';
 import { execute as serverinfoExecute } from './commands/serverinfo.js';
 import { execute as avatarExecute } from './commands/avatar.js';
 import { execute as iaExecute, handleIAMessage, historicoChats } from './commands/ia.js';
+import { execute as traduzirExecute } from './commands/traduzir.js';
+import { execute as idiomaExecute } from './commands/idioma.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -183,6 +185,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await iaExecute(interaction);
       return;
     }
+    if (interaction.commandName === 'traduzir') {
+      await traduzirExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'idioma') {
+      await idiomaExecute(interaction);
+      return;
+    } 
   }
 
   // Botão de confirmação de leitura de aviso

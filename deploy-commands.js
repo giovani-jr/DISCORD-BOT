@@ -17,6 +17,8 @@ import { data as userinfoData } from './commands/userinfo.js';
 import { data as serverinfoData } from './commands/serverinfo.js';
 import { data as avatarData } from './commands/avatar.js';
 import { data as iaData } from './commands/ia.js';
+import { data as traduzirData } from './commands/traduzir.js';
+import { data as idiomaData } from './commands/idioma.js';
 
 dotenv.config();
 
@@ -38,6 +40,8 @@ const commands = [
   serverinfoData.toJSON(),
   avatarData.toJSON(),
   iaData.toJSON(),
+  traduzirData.toJSON(),
+  idiomaData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

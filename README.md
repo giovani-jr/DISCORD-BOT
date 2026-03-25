@@ -1,6 +1,6 @@
 # 🤖 — Bot de Gerenciamento de Servidor
 
-Bot completo para gerenciamento de servidores Discord, desenvolvido em JavaScript com discord.js v14. Oferece ferramentas de moderação, comunicação, diversão e configuração personalizável por servidor.
+Bot completo para gerenciamento de servidores Discord, desenvolvido em JavaScript com discord.js v14. Oferece ferramentas de moderação, comunicação, diversão, inteligência artificial e configuração personalizável por servidor.
 
 ---
 
@@ -43,12 +43,45 @@ O bot é totalmente configurável por servidor através de slash commands. Cada 
 |---|---|
 | `/sortear` | Cria um sorteio com tempo definido e reações |
 | `/enquete` | Cria uma enquete com até 4 opções |
+| `/coinflip` | Lança uma moeda — cara ou coroa |
+| `/dado` | Rola um dado personalizado (ex: `1d6`, `2d20`, `3d8`) |
+| `/8ball` | Consulte a bola mágica com uma pergunta |
 | `/ping` | Verifica a latência do bot |
-| `/ajuda` | Exibe todos os comandos disponíveis |
+
+### 👤 Informações
+| Comando | Descrição |
+|---|---|
+| `/userinfo` | Exibe informações detalhadas de um usuário |
+| `/serverinfo` | Exibe informações do servidor |
+| `/avatar` | Mostra o avatar de um membro em tamanho grande |
+
+### 🌐 Tradução
+Sistema de tradução integrado com IA via **Groq (llama-3.3-70b-versatile)**, com cooldown de 10 segundos por usuário e idioma padrão configurável individualmente.
+
+| Comando | Descrição |
+|---|---|
+| `/traduzir` | Traduz um texto para o idioma desejado ou para o seu idioma padrão |
+| `/idioma definir` | Define seu idioma padrão de tradução |
+| `/idioma ver` | Exibe seu idioma padrão atual |
+| `/idioma remover` | Remove seu idioma padrão |
+
+### 🤖 Inteligência Artificial
+Sistema de IA integrado com **Google Gemini**, com suporte a perguntas rápidas e chat privado com histórico de conversa por canal.
+
+| Comando | Descrição |
+|---|---|
+| `/ia perguntar` | Faz uma pergunta rápida para a IA |
+| `/ia iniciar` | Cria um canal de chat privado com a IA e histórico de conversa |
+| `/ia encerrar` | Encerra e remove o canal de chat privado |
+
+### 📋 Ajuda inteligente
+O comando `/ajuda` exibe conteúdo diferente dependendo de quem o utiliza:
+- **Membros comuns** — veem apenas os comandos de diversão, informações, tradução e IA
+- **Administradores** — veem todos os comandos acima mais os de moderação, configuração, avisos e controle de canais
 
 ### 🤖 Automático
 - 👋 **Boas-vindas** — mensagem pública e DM privada para novos membros com cargo automático
-- 🎧 **Log de voz** — registra entradas, saídas e mudanças de canal de voz
+- 🎧 **Log de voz** — registra entradas, saídas e mudanças de canal de voz com duração
 - ✅ **Confirmação de avisos** — membros confirmam leitura de avisos via botão na DM
 
 ---
@@ -60,6 +93,8 @@ O bot é totalmente configurável por servidor através de slash commands. Cada 
 - [dotenv](https://www.npmjs.com/package/dotenv)
 - [fs-extra](https://www.npmjs.com/package/fs-extra)
 - [axios](https://www.npmjs.com/package/axios)
+- [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai)
+- [groq-sdk](https://www.npmjs.com/package/groq-sdk)
 
 ---
 
@@ -68,6 +103,8 @@ O bot é totalmente configurável por servidor através de slash commands. Cada 
 ### Pré-requisitos
 - Node.js v18 ou superior
 - Conta no [Discord Developer Portal](https://discord.com/developers/applications)
+- Chave de API do [Google Gemini](https://aistudio.google.com/apikey)
+- Chave de API do [Groq](https://console.groq.com/keys)
 
 ### 1. Clone o repositório
 ```bash
@@ -85,6 +122,8 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 ```env
 TOKEN=seu_token_aqui
 CLIENT_ID=seu_client_id_aqui
+GEMINI_API_KEY=sua_chave_gemini_aqui
+GROQ_API_KEY=sua_chave_groq_aqui
 ```
 
 ### 4. Registre os slash commands
@@ -113,22 +152,30 @@ Use os slash commands para configurar o bot no seu servidor Discord:
 ```
 DISCORD-BOT/
 ├── commands/
+│   ├── 8ball.js
 │   ├── ajuda.js
-│   ├── advertir.js
+│   ├── avatar.js
 │   ├── aviso.js
+│   ├── coinflip.js
 │   ├── configurar.js
+│   ├── dado.js
 │   ├── enquete.js
+│   ├── ia.js
+│   ├── idioma.js
 │   ├── limpar.js
 │   ├── lock.js
 │   ├── moderar.js
 │   ├── ping.js
+│   ├── serverinfo.js
 │   ├── slowmode.js
-│   └── sortear.js
+│   ├── sortear.js
+│   ├── traduzir.js
+│   └── userinfo.js
 ├── config/
 │   ├── config.json
-│   ├── configManager.js
-│   └── advertencias.json
-├── events/
+│   └── configManager.js
+├── data/
+│   └── idiomas.json
 ├── deploy-commands.js
 ├── index.js
 ├── package.json
@@ -142,6 +189,7 @@ DISCORD-BOT/
 - O arquivo `.env` **nunca** deve ser compartilhado ou enviado ao GitHub
 - Mensagens com mais de 14 dias só podem ser apagadas com `/limpar forcar`
 - O bot precisa ter as permissões necessárias no servidor para funcionar corretamente
+- O `/traduzir` tem cooldown de 10 segundos por usuário para evitar sobrecarga da API
 
 ---
 
