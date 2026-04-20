@@ -31,6 +31,9 @@ import { execute as avatarExecute } from './commands/avatar.js';
 import { execute as iaExecute, handleIAMessage, historicoChats } from './commands/ia.js';
 import { execute as traduzirExecute } from './commands/traduzir.js';
 import { execute as idiomaExecute } from './commands/idioma.js';
+import { execute as ativarExecute } from './commands/ativar.js';
+import { execute as desativarExecute } from './commands/desativar.js';
+import { iniciarScrapers } from './scrapers/scheduler.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -47,6 +50,7 @@ const client = new Client({
 // ── Bot pronto ──
 client.once("clientReady", () => {
   console.log(`✅ Bot iniciado como ${client.user.tag}`);
+   iniciarScrapers(client);
 });
 
 // ── Mapas de controle ──
@@ -193,6 +197,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await idiomaExecute(interaction);
       return;
     } 
+    if (interaction.commandName === 'ativar') {
+      await ativarExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'desativar') {
+      await desativarExecute(interaction);
+      return;
+    }
   }
 
   // Botão de confirmação de leitura de aviso
@@ -310,6 +322,15 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
       channelName: newState.channel.name,
     });
   }
+});
+
+// Previne o bot de cair por erros não tratados
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
 });
 
 // ── Login do bot ──

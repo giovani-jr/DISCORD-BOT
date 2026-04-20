@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, MessageFlags } from 'discord.js';
 import { getConfig } from '../config/configManager.js';
 
 export const data = new SlashCommandBuilder()
@@ -7,7 +7,6 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction) {
   const config = getConfig(interaction.guild.id);
-
   const temPermissao = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
   const temCargo = config.admin_role && interaction.member.roles.cache.has(config.admin_role);
   const isAdmin = temPermissao || temCargo;
@@ -15,9 +14,10 @@ export async function execute(interaction) {
   const embed = new EmbedBuilder()
     .setTitle(isAdmin ? '🔐 Comandos do ZAPPY — Visão Admin' : '📋 Comandos do ZAPPY')
     .setColor(isAdmin ? 'Red' : 'Blue')
-    .setDescription(isAdmin
-      ? 'Você tem acesso a todos os comandos, incluindo os de administração.'
-      : 'Aqui estão todos os comandos disponíveis para você:'
+    .setDescription(
+      isAdmin
+        ? 'Você tem acesso a todos os comandos, incluindo os de administração.'
+        : 'Aqui estão todos os comandos disponíveis para você:',
     )
     .addFields(
       {
@@ -72,6 +72,23 @@ export async function execute(interaction) {
         ].join('\n'),
       },
       {
+        name: '📡 Web Scraping — Ativar Módulos',
+        value: [
+          '*Cria um canal somente-leitura dentro de uma categoria **📡 SCRAPING***',
+          '',
+          '`/ativar scraping noticias [regiao] [nome-canal]`',
+          '> 📰 Notícias automáticas a cada **30 minutos**',
+          '> Regiões: 🇧🇷 Brasil • 🇺🇸 EUA • 🇪🇺 Europa • 🌎 Tudo',
+          '',
+          '`/ativar scraping cotacoes [nome-canal]`',
+          '> 💹 Cotações financeiras a cada **15 minutos**',
+          '> USD, EUR, GBP, JPY, CNY, RUB, ARS, BTC, ETH, SOL, Ouro, SELIC...',
+          '`/desativar scraping noticias` → Para e remove o canal de notícias',
+          '`/desativar scraping cotacoes` → Para e remove o canal de cotações',
+          '> *Opção de manter o canal ao desativar*',
+        ].join('\n'),
+      },
+      {
         name: '🔨 Moderação',
         value: [
           '`/moderar kick` → Expulsa um membro do servidor',
@@ -110,5 +127,5 @@ export async function execute(interaction) {
     .setFooter({ text: isAdmin ? 'ZAPPY • Modo Administrador' : 'ZAPPY • Bot de gerenciamento' })
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }
