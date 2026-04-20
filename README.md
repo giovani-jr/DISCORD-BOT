@@ -74,6 +74,19 @@ Sistema de IA integrado com **Google Gemini**, com suporte a perguntas rápidas 
 | `/ia iniciar` | Cria um canal de chat privado com a IA e histórico de conversa |
 | `/ia encerrar` | Encerra e remove o canal de chat privado |
 
+📡 Web Scraping (Notícias e Cotações)
+O bot pode criar canais automáticos que publicam notícias e cotações de moedas em intervalos regulares. Todos os comandos exigem permissão de administrador ou o cargo configurado em `/configurar cargo-admin`.
+
+| Comando | Descrição |
+|---------|-----------|
+| `/ativar scraping noticias [regiao] [nome-canal]` | Cria um canal de notícias dentro da categoria `📡 SCRAPING`. Atualiza a cada 30 minutos. Regiões: `brasil`, `eua`, `europa`, `tudo` |
+| `/ativar scraping cotacoes [nome-canal]` | Cria um canal de cotações financeiras na mesma categoria. Atualiza a cada 15 minutos. Inclui USD, EUR, BTC, Ouro, SELIC e mais |
+| `/desativar scraping noticias` | Para o envio de notícias e remove o canal (com opção de manter o canal vazio) |
+| `/desativar scraping cotacoes` | Para o envio de cotações e remove o canal (com opção de manter o canal vazio) |
+
+> ⚠️ Os canais são criados **somente-leitura** e dentro de uma categoria chamada **📡 SCRAPING** (criada automaticamente se não existir).
+
+
 ### 📋 Ajuda inteligente
 O comando `/ajuda` exibe conteúdo diferente dependendo de quem o utiliza:
 - **Membros comuns** — veem apenas os comandos de diversão, informações, tradução e IA
@@ -83,6 +96,7 @@ O comando `/ajuda` exibe conteúdo diferente dependendo de quem o utiliza:
 - 👋 **Boas-vindas** — mensagem pública e DM privada para novos membros com cargo automático
 - 🎧 **Log de voz** — registra entradas, saídas e mudanças de canal de voz com duração
 - ✅ **Confirmação de avisos** — membros confirmam leitura de avisos via botão na DM
+- 📡 **Web Scraping** — (Notícias e Cotações)
 
 ---
 
@@ -154,11 +168,13 @@ DISCORD-BOT/
 ├── commands/
 │   ├── 8ball.js
 │   ├── ajuda.js
+│   ├── ativar.js
 │   ├── avatar.js
 │   ├── aviso.js
 │   ├── coinflip.js
 │   ├── configurar.js
 │   ├── dado.js
+│   ├── desativar.js
 │   ├── enquete.js
 │   ├── ia.js
 │   ├── idioma.js
@@ -176,6 +192,10 @@ DISCORD-BOT/
 │   └── configManager.js
 ├── data/
 │   └── idiomas.json
+├── scrapers/
+│   ├── cotacoes.js
+│   ├── noticias.js
+│   └── scheduler.js
 ├── deploy-commands.js
 ├── index.js
 ├── package.json
@@ -190,6 +210,7 @@ DISCORD-BOT/
 - Mensagens com mais de 14 dias só podem ser apagadas com `/limpar forcar`
 - O bot precisa ter as permissões necessárias no servidor para funcionar corretamente
 - O `/traduzir` tem cooldown de 10 segundos por usuário para evitar sobrecarga da API
+- Os comandos `/ativar scraping *` criam automaticamente uma categoria `📡 SCRAPING` e canais somente-leitura. O bot precisa da permissão **Gerenciar Canais** para isso.
 
 ---
 
