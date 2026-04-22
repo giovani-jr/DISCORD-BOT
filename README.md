@@ -35,8 +35,16 @@ O bot é totalmente configurável por servidor através de slash commands. Cada 
 ### 📢 Avisos
 | Comando | Descrição |
 |---|---|
+| `/aviso criar-canal` | cria automaticamente o canal 📣-avisos com permissão somente-leitura e mensagem fixada |
 | `/aviso enviar` | Envia um aviso para todos os membros via DM e canal |
 | `/aviso agendar` | Agenda um aviso para um horário específico |
+
+### 🎫 Sistema de Tickets
+| Comando | Descrição |
+|---|---|
+| `/ticket setup` | Cria a categoria 🎫 SUPORTE, o canal 🎫-abrir-ticket e o canal 📋-logs-ticket |
+| `/ticket configurar cargo` | Define o cargo da equipe de suporte que pode assumir e fechar tickets |
+| `/ticket remover` | Remove toda a categoria, canais e configurações do sistema de tickets |
 
 ### 🎉 Diversão e Utilidade
 | Comando | Descrição |
@@ -97,6 +105,7 @@ O comando `/ajuda` exibe conteúdo diferente dependendo de quem o utiliza:
 - 🎧 **Log de voz** — registra entradas, saídas e mudanças de canal de voz com duração
 - ✅ **Confirmação de avisos** — membros confirmam leitura de avisos via botão na DM
 - 📡 **Web Scraping** — (Notícias e Cotações)
+- 🎫 Tickets — sistema completo de atendimento com logs, permissões e DMs automáticas
 
 ---
 
@@ -185,13 +194,17 @@ DISCORD-BOT/
 │   ├── serverinfo.js
 │   ├── slowmode.js
 │   ├── sortear.js
+│   ├── ticket.js
 │   ├── traduzir.js
 │   └── userinfo.js
 ├── config/
 │   ├── config.json
 │   └── configManager.js
 ├── data/
-│   └── idiomas.json
+│   ├── idiomas.json
+│   └── tickets.json
+├── handlers/
+│   └── ticketHandler.js
 ├── scrapers/
 │   ├── cotacoes.js
 │   ├── noticias.js
@@ -211,6 +224,8 @@ DISCORD-BOT/
 - O bot precisa ter as permissões necessárias no servidor para funcionar corretamente
 - O `/traduzir` tem cooldown de 10 segundos por usuário para evitar sobrecarga da API
 - Os comandos `/ativar scraping *` criam automaticamente uma categoria `📡 SCRAPING` e canais somente-leitura. O bot precisa da permissão **Gerenciar Canais** para isso.
+- O sistema de tickets requer que o bot tenha permissão de Gerenciar Canais e Gerenciar Permissões
+- Tickets são armazenados em data/tickets.json — não apague este arquivo ou o histórico será perdido
 
 ---
 

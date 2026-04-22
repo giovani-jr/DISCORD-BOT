@@ -34,6 +34,13 @@ import { execute as idiomaExecute } from './commands/idioma.js';
 import { execute as ativarExecute } from './commands/ativar.js';
 import { execute as desativarExecute } from './commands/desativar.js';
 import { iniciarScrapers } from './scrapers/scheduler.js';
+import { execute as ticketExecute } from './commands/ticket.js';
+import {
+  handleTicketCategoria,
+  handleTicketModal,
+  handleAssumir,
+  handleFechar,
+} from './handlers/ticketHandler.js';
 
 // ── Inicialização do client ──
 const client = new Client({
@@ -203,6 +210,32 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
     if (interaction.commandName === 'desativar') {
       await desativarExecute(interaction);
+      return;
+    }
+    if (interaction.commandName === 'ticket') {
+      await ticketExecute(interaction);
+      return;
+    }
+  }
+
+  // Select Menu de tickets
+  if (interaction.isStringSelectMenu() && interaction.customId === 'ticket_categoria') {
+    await handleTicketCategoria(interaction);
+    return;
+  }
+  // Modal de tickets
+  if (interaction.isModalSubmit() && interaction.customId.startsWith('ticket_modal_')) {
+    await handleTicketModal(interaction);
+    return;
+  }
+  // Botões de tickets
+  if (interaction.isButton()) {
+    if (interaction.customId.startsWith('assumir_ticket_')) {
+      await handleAssumir(interaction);
+      return;
+    }
+  if (interaction.customId.startsWith('fechar_ticket_')) {
+      await handleFechar(interaction);
       return;
     }
   }

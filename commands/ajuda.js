@@ -72,6 +72,27 @@ export async function execute(interaction) {
         ].join('\n'),
       },
       {
+        name: '🎫 Sistema de Tickets',
+        value: [
+          '`/ticket setup` → Cria a categoria e canais do sistema de tickets',
+          '`/ticket configurar cargo` → Define o cargo da equipe de suporte',
+          '`/ticket remover` → Remove todo o sistema de tickets do servidor',
+          '',
+          '*Fluxo automático:*',
+          '> Membro abre select menu → preenche motivo → log gerado',
+          '> Staff clica **Assumir** → canal privado criado',
+          '> Staff clica **Fechar** → canal deletado + log atualizado',
+        ].join('\n'),
+      },
+      {
+        name: '📢 Avisos',
+        value: [
+          '`/aviso criar-canal` → Cria canal 📣-avisos somente-leitura automaticamente',
+          '`/aviso enviar` → Envia aviso no canal e DM para todos os membros',
+          '`/aviso agendar` → Agenda um aviso para um horário específico',
+        ].join('\n'),
+      },
+      {
         name: '📡 Web Scraping — Ativar Módulos',
         value: [
           '*Cria um canal somente-leitura dentro de uma categoria **📡 SCRAPING***',
@@ -83,6 +104,7 @@ export async function execute(interaction) {
           '`/ativar scraping cotacoes [nome-canal]`',
           '> 💹 Cotações financeiras a cada **15 minutos**',
           '> USD, EUR, GBP, JPY, CNY, RUB, ARS, BTC, ETH, SOL, Ouro, SELIC...',
+          '',
           '`/desativar scraping noticias` → Para e remove o canal de notícias',
           '`/desativar scraping cotacoes` → Para e remove o canal de cotações',
           '> *Opção de manter o canal ao desativar*',
@@ -111,13 +133,6 @@ export async function execute(interaction) {
           '`/slowmode desativar` → Remove o modo lento',
           '`/lock bloquear` → Bloqueia o canal para membros',
           '`/lock desbloquear` → Desbloqueia o canal',
-        ].join('\n'),
-      },
-      {
-        name: '📢 Avisos',
-        value: [
-          '`/aviso enviar` → Envia um aviso imediato para todos',
-          '`/aviso agendar` → Agenda um aviso para um horário específico',
         ].join('\n'),
       },
     );

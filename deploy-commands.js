@@ -21,6 +21,7 @@ import { data as traduzirData } from './commands/traduzir.js';
 import { data as idiomaData } from './commands/idioma.js';
 import { data as ativarData } from './commands/ativar.js';
 import { data as desativarData } from './commands/desativar.js';
+import { data as ticketData } from './commands/ticket.js';
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ const commands = [
   idiomaData.toJSON(),
   ativarData.toJSON(),
   desativarData.toJSON(),
+  ticketData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

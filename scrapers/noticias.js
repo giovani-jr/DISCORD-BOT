@@ -84,9 +84,18 @@ function parseRSS(xml) {
 
       const descLimpa = description
         ? description
-            .replace(/<[^>]+>/g, '')
+            // Decodifica entidades antes de remover tags (Google News usa &lt;a href=...&gt;)
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
             .replace(/&amp;/g, '&')
+            .replace(/&quot;/g, '"')
+            .replace(/&apos;/g, "'")
+            .replace(/&#\d+;/g, '')
+            // Remove todas as tags HTML (agora decodificadas)
+            .replace(/<[^>]+>/g, '')
+            // Remove espaços e quebras extras
             .replace(/&nbsp;/g, ' ')
+            .replace(/\s{2,}/g, ' ')
             .trim()
             .slice(0, 200)
         : '';
