@@ -1,2 +1,6 @@
 .env
 node_modules/
+config/config.json
+data/tickets.json
+data/backups.json
+data/idiomas.json
