@@ -26,7 +26,6 @@ async function criarCanalAvisos(guild) {
     ],
   });
 
-  // Mensagem explicativa fixada no canal
   const msgFixa = await canal.send({
     embeds: [
       new EmbedBuilder()
@@ -57,22 +56,24 @@ function criarEmbedAviso(mensagem, autorTag) {
     .setTimestamp();
 }
 
-// ── Envia DM com botão de confirmação ──
-async function sendNoticeDM(member, mensagem, autorTag, readConfirmations) {
-  const row = new ActionRowBuilder().addComponents(
+// ── Botão de confirmação ──
+function criarBotaoConfirmacao() {
+  return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('confirm_read')
       .setLabel('✅ Li o aviso')
       .setStyle(ButtonStyle.Primary),
   );
+}
+
+// ── Envia DM com botão de confirmação e registra no mapa ──
+async function sendNoticeDM(member, mensagem, autorTag, avisoId, avisoMap) {
+  const embed = criarEmbedAviso(mensagem, autorTag);
+  const row = criarBotaoConfirmacao();
 
   try {
-    const dmMessage = await member.send({
-      embeds: [criarEmbedAviso(mensagem, autorTag)],
-      components: [row],
-    });
-    if (!readConfirmations.has(member.id)) readConfirmations.set(member.id, []);
-    readConfirmations.get(member.id).push(dmMessage.id);
+    const dmMessage = await member.send({ embeds: [embed], components: [row] });
+    avisoMap.set(dmMessage.id, avisoId);
     return true;
   } catch {
     return false;
@@ -80,15 +81,48 @@ async function sendNoticeDM(member, mensagem, autorTag, readConfirmations) {
 }
 
 // ── Dispara o aviso para canal + DMs ──
-async function dispararAviso(guild, mensagem, autorTag, readConfirmations) {
+async function dispararAviso(guild, mensagem, autorTag, avisoMap, avisoData) {
   const config = getConfig(guild.id);
+  const avisoId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const avisoTimestamp = new Date();
+
+  // Inicializa os dados do aviso
+  avisoData.set(avisoId, {
+    guildId: guild.id,
+    authorTag: autorTag,            // <--- corrigido
+    timestamp: avisoTimestamp,
+    confirmations: new Set(),
+    logMessageId: null,
+  });
+
+  // Envia relatório inicial no canal de log (se existir)
+  const logChannel = guild.channels.cache.get(config.log_channel);
+  if (logChannel) {
+    const embedLog = new EmbedBuilder()
+      .setTitle('📢 Registro de Aviso')
+      .setColor(0x3498db)
+      .addFields(
+        { name: '👤 Criado por', value: autorTag, inline: true },
+        { name: '🕒 Horário', value: avisoTimestamp.toLocaleString('pt-BR'), inline: true },
+        { name: '✅ Confirmaram', value: 'Nenhum ainda', inline: false },
+      )
+      .setFooter({ text: `ID do aviso: ${avisoId}` })
+      .setTimestamp();
+
+    const logMessage = await logChannel.send({ embeds: [embedLog] });
+    avisoData.get(avisoId).logMessageId = logMessage.id;
+  }
+
   let sentCount = 0;
 
   // Posta no canal de avisos (se configurado)
   const notifyChannel = guild.channels.cache.get(config.notify_channel);
   if (notifyChannel) {
+    const embed = criarEmbedAviso(mensagem, autorTag);
+    const row = criarBotaoConfirmacao();
     try {
-      await notifyChannel.send({ embeds: [criarEmbedAviso(mensagem, autorTag)] });
+      const msg = await notifyChannel.send({ embeds: [embed], components: [row] });
+      avisoMap.set(msg.id, avisoId);
     } catch (err) {
       console.error('[aviso] Erro ao postar no canal:', err.message);
     }
@@ -98,7 +132,7 @@ async function dispararAviso(guild, mensagem, autorTag, readConfirmations) {
   const members = await guild.members.fetch();
   for (const member of members.values()) {
     if (member.user.bot) continue;
-    const ok = await sendNoticeDM(member, mensagem, autorTag, readConfirmations);
+    const ok = await sendNoticeDM(member, mensagem, autorTag, avisoId, avisoMap);
     if (ok) sentCount++;
   }
 
@@ -109,13 +143,11 @@ export const data = new SlashCommandBuilder()
   .setName('aviso')
   .setDescription('Gerencia o sistema de avisos do servidor')
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-  // criar-canal
   .addSubcommand((s) =>
     s
       .setName('criar-canal')
       .setDescription('Cria o canal de avisos (somente-leitura) e o configura automaticamente'),
   )
-  // enviar
   .addSubcommand((s) =>
     s
       .setName('enviar')
@@ -124,7 +156,6 @@ export const data = new SlashCommandBuilder()
         o.setName('mensagem').setDescription('Mensagem do aviso').setRequired(true),
       ),
   )
-  // agendar
   .addSubcommand((s) =>
     s
       .setName('agendar')
@@ -140,12 +171,11 @@ export const data = new SlashCommandBuilder()
       ),
   );
 
-export function createExecute(readConfirmations) {
+export function createExecute({ avisoMap, avisoData }) {
   return async function execute(interaction) {
     const config = getConfig(interaction.guildId);
     const adminRole = config.admin_role;
 
-    // Verifica cargo admin (além da permissão nativa do Discord)
     if (adminRole && !interaction.member.roles.cache.has(adminRole) &&
         !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
       return interaction.reply({
@@ -157,13 +187,10 @@ export function createExecute(readConfirmations) {
     const sub = interaction.options.getSubcommand();
     const guild = interaction.guild;
 
-    // ══════════════════════════════
-    // /aviso criar-canal
-    // ══════════════════════════════
+    // ── /aviso criar-canal ──
     if (sub === 'criar-canal') {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      // Se já existe canal configurado e válido, avisa
       if (config.notify_channel && guild.channels.cache.get(config.notify_channel)) {
         return interaction.editReply(
           `⚠️ O canal de avisos já está configurado: <#${config.notify_channel}>\n` +
@@ -190,14 +217,11 @@ export function createExecute(readConfirmations) {
       });
     }
 
-    // ══════════════════════════════
-    // /aviso enviar
-    // ══════════════════════════════
+    // ── /aviso enviar ──
     if (sub === 'enviar') {
       const mensagem = interaction.options.getString('mensagem');
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      // Se não tem canal configurado, sugere criar
       if (!config.notify_channel || !guild.channels.cache.get(config.notify_channel)) {
         return interaction.editReply(
           '⚠️ Nenhum canal de avisos configurado.\n' +
@@ -209,7 +233,8 @@ export function createExecute(readConfirmations) {
         guild,
         mensagem,
         interaction.user.tag,
-        readConfirmations,
+        avisoMap,
+        avisoData,
       );
 
       return interaction.editReply({
@@ -226,9 +251,7 @@ export function createExecute(readConfirmations) {
       });
     }
 
-    // ══════════════════════════════
-    // /aviso agendar
-    // ══════════════════════════════
+    // ── /aviso agendar ──
     if (sub === 'agendar') {
       const mensagem = interaction.options.getString('mensagem');
       const horario = interaction.options.getString('horario');
@@ -276,7 +299,8 @@ export function createExecute(readConfirmations) {
             guild,
             mensagem,
             interaction.user.tag,
-            readConfirmations,
+            avisoMap,
+            avisoData,
           );
           await interaction.followUp({
             content: `✅ Aviso agendado das **${horaFormatada}** enviado para **${sentCount}** membros!`,

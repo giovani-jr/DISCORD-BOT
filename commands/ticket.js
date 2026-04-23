@@ -11,6 +11,15 @@ import {
   MessageFlags,
 } from 'discord.js';
 import { setConfig, getConfig } from '../config/configManager.js';
+import {
+  gerarTicketId,
+  criarTicket,
+  atualizarTicket,
+  getTicket,
+  membroTemTicketAtivo,
+  getTicketPorCanal,
+  resetarTickets,
+} from '../handlers/ticketManager.js';
 
 const CATEGORIA_NOME = '🎫 SUPORTE';
 const CANAL_ABERTURA = '🎫-abrir-ticket';
@@ -59,12 +68,18 @@ export const data = new SlashCommandBuilder()
       .setName('configurar')
       .setDescription('Configura o cargo de suporte')
       .addRoleOption((o) =>
-        o.setName('cargo').setDescription('Cargo da equipe de suporte').setRequired(true),
+        o.setName('cargo')
+          .setDescription('Cargo da equipe de suporte (ou deixe vazio para criar automaticamente)')
+          .setRequired(false),   // ← tornou opcional
       ),
   )
   // ── remover ──
   .addSubcommand((s) =>
     s.setName('remover').setDescription('Remove todo o sistema de tickets do servidor'),
+  )
+  // ── reset ──
+  .addSubcommand((s) =>
+    s.setName('reset').setDescription('Reseta (zera) todos os tickets do servidor'),
   );
 
 export async function execute(interaction) {
@@ -156,7 +171,17 @@ export async function execute(interaction) {
   // /ticket configurar cargo
   // ════════════════════════════════
   if (sub === 'configurar') {
-    const cargo = interaction.options.getRole('cargo');
+    let cargo = interaction.options.getRole('cargo');
+
+    // Cria automaticamente se não for passado
+    if (!cargo) {
+      cargo = await guild.roles.create({
+        name: 'Suporte',
+        color: 'DarkGreen',   // verde escuro
+        reason: 'Cargo de suporte automático para tickets',
+      });
+    }
+
     setConfig(guildId, 'ticket_cargo_suporte', cargo.id);
 
     // Atualiza permissões do canal de logs para o cargo de suporte
@@ -216,6 +241,30 @@ export async function execute(interaction) {
           .setTitle('🗑️ Sistema de Tickets Removido')
           .setDescription('Todos os canais, categoria e configurações foram removidos.')
           .setColor(0xe74c3c)
+          .setTimestamp(),
+      ],
+    });
+  }
+
+  // ════════════════════════════════
+  // /ticket reset
+  // ════════════════════════════════
+  if (sub === 'reset') {
+    const config = getConfig(guildId);
+    const categoriaId = config.ticket_categoria_id;
+
+    if (!categoriaId) {
+      return interaction.editReply('⚠️ Nenhum sistema de tickets encontrado neste servidor.');
+    }
+
+    resetarTickets(guildId);
+
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setTitle('🔄 Tickets Resetados')
+          .setDescription('Todos os tickets do servidor foram removidos do histórico. Os canais de atendimento **não** foram deletados.')
+          .setColor(0xf39c12)
           .setTimestamp(),
       ],
     });

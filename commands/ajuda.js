@@ -6,6 +6,9 @@ export const data = new SlashCommandBuilder()
   .setDescription('Lista os comandos disponíveis para você');
 
 export async function execute(interaction) {
+  // O bloqueio de DM já é feito globalmente no index.js,
+  // então aqui a interação sempre tem guild.
+
   const config = getConfig(interaction.guild.id);
   const temPermissao = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
   const temCargo = config.admin_role && interaction.member.roles.cache.has(config.admin_role);
@@ -63,12 +66,21 @@ export async function execute(interaction) {
       {
         name: '⚙️ Configuração do Bot',
         value: [
-          '`/configurar boas-vindas` → Define o canal de boas-vindas',
+          '`/configurar bate-papo` → Define o canal de boas-vindas',
           '`/configurar cargo-inicial` → Define o cargo dado a novos membros',
-          '`/configurar log-voz` → Define o canal de log de voz',
-          '`/configurar avisos` → Define o canal de avisos',
+          '`/configurar log-servidor` → Define o canal de log de voz',
           '`/configurar cargo-admin` → Define o cargo de administrador',
           '`/configurar status` → Exibe as configurações atuais',
+        ].join('\n'),
+      },
+      {
+        name: '📦 Backup do Servidor',
+        value: [
+          '`/backup criar` → Gera backup completo (canais, cargos, permissões) e envia por DM',
+          '`/backup restaurar` → Restaura estrutura a partir de um arquivo .json (com opção de zerar antes)',
+          '`/backup listar` → Lista os últimos 10 backups criados neste servidor',
+          '`/backup remover` → remove registro do histórico e loga no canal de log',
+          '> ⚠️ Apenas administradores nativos do Discord podem usar este sistema',
         ].join('\n'),
       },
       {
@@ -77,6 +89,7 @@ export async function execute(interaction) {
           '`/ticket setup` → Cria a categoria e canais do sistema de tickets',
           '`/ticket configurar cargo` → Define o cargo da equipe de suporte',
           '`/ticket remover` → Remove todo o sistema de tickets do servidor',
+          '`/ticket reset` → Zera completamente o histórico de tickets (contador e tickets), mas não deleta canais existentes.',
           '',
           '*Fluxo automático:*',
           '> Membro abre select menu → preenche motivo → log gerado',
@@ -104,7 +117,11 @@ export async function execute(interaction) {
           '`/ativar scraping cotacoes [nome-canal]`',
           '> 💹 Cotações financeiras a cada **15 minutos**',
           '> USD, EUR, GBP, JPY, CNY, RUB, ARS, BTC, ETH, SOL, Ouro, SELIC...',
-          '',
+        ].join('\n'),
+      },
+      {
+        name: '📡 Web Scraping — Desativar Módulos',
+        value: [
           '`/desativar scraping noticias` → Para e remove o canal de notícias',
           '`/desativar scraping cotacoes` → Para e remove o canal de cotações',
           '> *Opção de manter o canal ao desativar*',

@@ -1,11 +1,12 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ping')
   .setDescription('Verifica a latência do bot');
 
 export async function execute(interaction) {
-  const sent = await interaction.deferReply({ fetchReply: true });
+  // Adia a resposta para medir a latência e mantê-la efêmera
+  const sent = await interaction.deferReply({ fetchReply: true, flags: MessageFlags.Ephemeral });
   
   const latencia = sent.createdTimestamp - interaction.createdTimestamp;
   const apiLatencia = Math.round(interaction.client.ws.ping);
@@ -19,5 +20,5 @@ export async function execute(interaction) {
     )
     .setTimestamp();
 
-  await interaction.editReply({ embeds: [embed] });
+  await interaction.editReply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }

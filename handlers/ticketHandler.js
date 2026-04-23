@@ -19,7 +19,7 @@ import {
   getTicket,
   membroTemTicketAtivo,
   getTicketPorCanal,
-} from '../data/ticketManager.js';
+} from './ticketManager.js';
 
 // ═══════════════════════════════════════════════════
 // SELECT MENU — usuário escolhe a categoria

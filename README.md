@@ -39,12 +39,21 @@ O bot é totalmente configurável por servidor através de slash commands. Cada 
 | `/aviso enviar` | Envia um aviso para todos os membros via DM e canal |
 | `/aviso agendar` | Agenda um aviso para um horário específico |
 
+### 📦 Sistema de Backup
+| Comando | Descrição |
+|---|---|
+| `/backup criar` | Gera um backup completo (categorias, canais, cargos, permissões e config do bot) e envia por DM como arquivo .json |
+| `/backup restaurar` | Restaura a estrutura a partir de um arquivo .json. Opção de modo seguro (cria apenas o que falta) ou modo zerar (apaga tudo e recria) |
+| `/backup listar` | Exibe o histórico dos últimos 10 backups criados no servidor |
+| `/backup remover` | Remove registro do histórico e loga no canal de log |
+
 ### 🎫 Sistema de Tickets
 | Comando | Descrição |
 |---|---|
 | `/ticket setup` | Cria a categoria 🎫 SUPORTE, o canal 🎫-abrir-ticket e o canal 📋-logs-ticket |
 | `/ticket configurar cargo` | Define o cargo da equipe de suporte que pode assumir e fechar tickets |
 | `/ticket remover` | Remove toda a categoria, canais e configurações do sistema de tickets |
+| `/ticket reset` | Zera o histórico de tickets do servidor (mantém canais). |
 
 ### 🎉 Diversão e Utilidade
 | Comando | Descrição |
@@ -165,7 +174,6 @@ Use os slash commands para configurar o bot no seu servidor Discord:
 /configurar boas-vindas #canal
 /configurar cargo-inicial @cargo
 /configurar log-voz #canal
-/configurar avisos #canal
 /configurar cargo-admin @cargo
 ```
 
@@ -180,6 +188,7 @@ DISCORD-BOT/
 │   ├── ativar.js
 │   ├── avatar.js
 │   ├── aviso.js
+│   ├── backup.js
 │   ├── coinflip.js
 │   ├── configurar.js
 │   ├── dado.js
@@ -202,15 +211,18 @@ DISCORD-BOT/
 │   └── configManager.js
 ├── data/
 │   ├── idiomas.json
-│   └── tickets.json
+│   ├── tickets.json
+│   └── backups.json     
 ├── handlers/
-│   └── ticketHandler.js
+│   ├── ticketHandler.js
+│   └── ticketManager.js
 ├── scrapers/
 │   ├── cotacoes.js
 │   ├── noticias.js
 │   └── scheduler.js
 ├── deploy-commands.js
 ├── index.js
+├── .gitignore
 ├── package.json
 └── .env (não versionado)
 ```
@@ -226,6 +238,8 @@ DISCORD-BOT/
 - Os comandos `/ativar scraping *` criam automaticamente uma categoria `📡 SCRAPING` e canais somente-leitura. O bot precisa da permissão **Gerenciar Canais** para isso.
 - O sistema de tickets requer que o bot tenha permissão de Gerenciar Canais e Gerenciar Permissões
 - Tickets são armazenados em data/tickets.json — não apague este arquivo ou o histórico será perdido
+- `/backup criar` salva toda a estrutura do servidor e todas as configurações do bot (tickets, scrapers, canais, cargos).
+- `/backup restaurar` é portável entre servidores: canais e cargos são mapeados por nome, e o conteúdo de tickets/scrapers é recriado automaticamente.
 
 ---
 

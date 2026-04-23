@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('serverinfo')
@@ -41,5 +41,5 @@ export async function execute(interaction) {
     .setFooter({ text: `Solicitado por ${interaction.user.tag}` })
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }

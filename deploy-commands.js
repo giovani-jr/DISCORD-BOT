@@ -22,6 +22,7 @@ import { data as idiomaData } from './commands/idioma.js';
 import { data as ativarData } from './commands/ativar.js';
 import { data as desativarData } from './commands/desativar.js';
 import { data as ticketData } from './commands/ticket.js';
+import { data as backupData } from './commands/backup.js';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ const commands = [
   ativarData.toJSON(),
   desativarData.toJSON(),
   ticketData.toJSON(),
+  backupData.toJSON(),
 ];
 
 const rest = new REST().setToken(process.env.TOKEN);

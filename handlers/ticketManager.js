@@ -76,6 +76,16 @@ export function membroTemTicketAtivo(guildId, autorId) {
   ) || null;
 }
 
+// ── Reseta todos os tickets de um servidor ──
+export function resetarTickets(guildId) {
+  const data = lerDados();
+  if (data[guildId]) {
+    data[guildId].contador = 0;
+    data[guildId].tickets = {};
+    salvarDados(data);
+  }
+}
+
 // ── Busca ticket pelo canal ──
 export function getTicketPorCanal(guildId, canalId) {
   const data = lerDados();

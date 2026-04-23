@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('dado')
@@ -11,11 +11,10 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction) {
   const tipo = interaction.options.getString('tipo') || '1d6';
 
-  // Valida o formato NdN
   if (!/^\d+d\d+$/i.test(tipo)) {
     await interaction.reply({
       content: '❌ Formato inválido! Use o formato `NdN` (ex: `1d6`, `2d20`, `3d8`)',
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
     return;
   }
@@ -25,7 +24,7 @@ export async function execute(interaction) {
   if (quantidade > 20) {
     await interaction.reply({
       content: '❌ Máximo de 20 dados por vez!',
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
     return;
   }
@@ -33,12 +32,11 @@ export async function execute(interaction) {
   if (lados > 1000) {
     await interaction.reply({
       content: '❌ Máximo de 1000 lados por dado!',
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
     return;
   }
 
-  // Rola os dados
   const resultados = Array.from({ length: quantidade }, () =>
     Math.floor(Math.random() * lados) + 1
   );
@@ -57,5 +55,5 @@ export async function execute(interaction) {
     .setFooter({ text: `Rolado por ${interaction.user.tag}` })
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 }

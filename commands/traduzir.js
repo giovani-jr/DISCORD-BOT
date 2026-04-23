@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import Groq from 'groq-sdk';
 import fs from 'fs-extra';
 import path from 'path';
@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const idiomasPath = path.join(__dirname, '../data/idiomas.json');
 
-// Cooldown por usuário — 10 segundos
 const cooldowns = new Map();
 const COOLDOWN_MS = 10_000;
 
@@ -24,13 +23,11 @@ export const data = new SlashCommandBuilder()
     .setRequired(false));
 
 export async function execute(interaction) {
-  // Inicializa o cliente aqui para garantir que o .env já foi carregado
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
   const texto = interaction.options.getString('texto');
   let idioma = interaction.options.getString('idioma');
 
-  // Verifica cooldown
   const agora = Date.now();
   const ultimoUso = cooldowns.get(interaction.user.id) || 0;
   const tempoRestante = COOLDOWN_MS - (agora - ultimoUso);
@@ -38,11 +35,10 @@ export async function execute(interaction) {
   if (tempoRestante > 0) {
     return interaction.reply({
       content: `⏳ Aguarde **${Math.ceil(tempoRestante / 1000)}s** antes de traduzir novamente.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
-  // Se não passou idioma, busca o padrão do usuário
   if (!idioma) {
     const dados = fs.readJsonSync(idiomasPath, { throws: false }) || {};
     idioma = dados[interaction.user.id];
@@ -50,12 +46,13 @@ export async function execute(interaction) {
     if (!idioma) {
       return interaction.reply({
         content: '❌ Você não tem um idioma padrão definido. Use `/idioma definir` ou passe o idioma no comando.',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
 
-  await interaction.deferReply();
+  // DeferReply efêmero para esconder o "pensando…"
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   try {
     cooldowns.set(interaction.user.id, agora);
@@ -68,10 +65,7 @@ export async function execute(interaction) {
           content: `Você é um tradutor profissional. Traduza o texto do usuário para ${idioma}.
 Retorne APENAS o texto traduzido, sem explicações, sem aspas, sem cabeçalhos.`,
         },
-        {
-          role: 'user',
-          content: texto,
-        },
+        { role: 'user', content: texto },
       ],
       max_tokens: 1000,
     });
